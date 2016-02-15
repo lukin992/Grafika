@@ -63,21 +63,6 @@ public class Canvas {
 					startC = ev.getX();
 					startR = ev.getY();
 				} else {
-					final/* @NotNull */SeedFill<Integer> filler = new SeedFill4<>(
-							raster);
-					final/* @NotNull */Optional<Integer> aux = raster.getPixel(
-							ev.getX(), ev.getY());
-					aux.ifPresent((final/* @NotNull */Integer background) -> {
-						try {
-							filler.fill(ev.getX(), ev.getY(),
-									(Integer value) -> {
-										return value.equals(background);
-									}, 0xff00ff);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						present();
-					});
 				}
 
 			}
