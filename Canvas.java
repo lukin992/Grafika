@@ -21,9 +21,9 @@ public class Canvas {
 	private final/* @NotNull */JPanel panel;
 	private final/* @NotNull */BufferedImage img;
 
-	private final/* @NotNull */RasterImage<Integer> raster;
+	private final/* @NotNull */RasterImage<Col> raster;
 	private final/* @NotNull */Presentable<Graphics> presentable;
-	private final/* @NotNull */LineRasterizerLerp<Integer> liner;
+	private final/* @NotNull */LineRasterizerLerp<Col> liner;
 
 	private int startC, startR;
 
@@ -40,19 +40,19 @@ public class Canvas {
 
 
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		final/* @NotNull */RasterImageAWT<Integer> rasterAwt = new RasterImageAWT<>(
+		final/* @NotNull */RasterImageAWT<Col> rasterAwt = new RasterImageAWT<>(
 				img, 
-				(Integer i) -> {
-					return i;
+				(Col i) -> {
+					return i.getRGB();
 				}, 
 				(Integer i) -> {
-					return i;
+					return new Col(i);
 				});
 		raster = rasterAwt;
 		presentable = rasterAwt;
 		liner = new LineRasterizerLerpDDA<>(raster, 
-				(Integer v1, Integer v2, double t) -> {
-					return (int) (v1.intValue() * (1 - t) + v2.intValue() * t);
+				(Col v1, Col v2, double t) -> {
+					return v1.mul(1-t).add(v2.mul(t));
 				});
 		
 		
@@ -71,8 +71,8 @@ public class Canvas {
 			@Override
 			public void mouseDragged(MouseEvent ev) {
 				// clear(0x2f2f2f);
-				liner.drawLine(startC, startR, ev.getX(), ev.getY(), 0xffffff,
-						0xff00ff);
+				liner.drawLine(startC, startR, ev.getX(), ev.getY(), new Col(0, 0, 255),
+						new Col(255, 0, 0));
 				present();
 			}
 		});
@@ -91,14 +91,14 @@ public class Canvas {
 
 	public void draw() {
 		clear(0x2f2f2f);
-		raster.setPixel(10, 10, 65535);
-		new Renderer<Point3D, Integer>(
+		raster.setPixel(10, 10, new Col(65535));
+		new Renderer<Point3D, Col>(
 				img.getWidth(), img.getHeight(),
 				(Point3D p) -> { 
 					return p; 
 				},
 				(Point3D p) -> { 
-					return 0xffff; 
+					return new Col(0xffff); 
 				},
 				liner).render(new Cube(), new Mat4Identity());;
 	}
